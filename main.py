@@ -51,23 +51,26 @@ def localize(colors, measurements, motions, sensor_right, p_move):
     # >>> Insert your code here <<<
     # sense
     for i in range(len(motions)):
-
-
         # move right
         U = motions[i][1]
-        p = mover_right(p, U, p_move)
-        normalize(p)
-        # show(p)
+        if U is not 0:
+            p = mover_right(p, U, p_move)
+            # normalize(p)
+            # print("move right")
+            # show(p)
 
         # move down
         U = motions[i][0]
-        p = mover_down( p, U, p_move)
-        normalize(p)
-        # show(p)
+        if U is not 0:
+            p = mover_down( p, U, p_move)
+            # normalize(p)
+            # print("move down")
+            # show(p)
 
         U = measurements[i]
         p = sense(p, U, sensor_right, colors)
-        normalize(p)
+        # normalize(p)
+        # print("sensed")
         # show(p)
 
     return p
@@ -126,6 +129,8 @@ def normalize(p):
         for y in range(len(p[0])):
             summer +=p[x][y]
 
+    print(str(summer), "summer")
+
     for x in range(len(p)):
         for y in range(len(p[0])):
             p[x][y] /= summer
@@ -158,10 +163,11 @@ colors = [['G', 'G', 'G'],
 measurements = ['R', 'R']
 motions = [[0,0], [0,1]]
 sensor_right = 1.0
-p_move = 1.0
+p_move = 0.5
 p = localize(colors,measurements,motions,sensor_right,p_move)
-# p = localize(colors,measurements,motions,sensor_right = 0.7, p_move = 0.8)
 show(p)  # displays your answer
+
+# p = localize(colors,measurements,motions,sensor_right = 0.7, p_move = 0.8)
 # p = [[0,0,0],
 #      [0, 1,0,],
 #      [0, 0, 0]]
@@ -170,3 +176,9 @@ show(p)  # displays your answer
 
 # problem in only p_move
 # row 1 should have the same numbers. Why is it not so when 0 < p_move < 1.0
+#
+# p = [[0,0,0],
+#      [0, 1, 1],
+#      [0, 0, 0]]
+#
+# show((mover_right(p ,1, 0.8)))
