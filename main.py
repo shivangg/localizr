@@ -56,15 +56,18 @@ def localize(colors, measurements, motions, sensor_right, p_move):
         # move right
         U = motions[i][1]
         p = mover_right(p, U, p_move)
+        normalize(p)
         # show(p)
 
         # move down
         U = motions[i][0]
         p = mover_down( p, U, p_move)
+        normalize(p)
         # show(p)
 
         U = measurements[i]
         p = sense(p, U, sensor_right, colors)
+        normalize(p)
         # show(p)
 
     return p
@@ -106,13 +109,29 @@ def mover_right(p,U,p_move):
 
 def move(arr, U, p_move):
     q= []
-
     for i in range(len(arr)):
         s = p_move * arr[(i - U) % len(arr)]
         s += (1 - p_move) * arr[(i - U + 1) % len(arr)]
+
         q.append(s)
 
+    # for x in range(len(q)):
+    #     q[x] /= summer
+
     return q
+
+def normalize(p):
+    summer = 0
+    for x in range(len(p)):
+        for y in range(len(p[0])):
+            summer +=p[x][y]
+
+    for x in range(len(p)):
+        for y in range(len(p[0])):
+            p[x][y] /= summer
+
+    return p
+
 
 def show(p):
     rows = ['[' + ','.join(map(lambda x: '{0:.5f}'.format(x), r)) + ']' for r in p]
@@ -138,8 +157,8 @@ colors = [['G', 'G', 'G'],
           ['G', 'G', 'G']]
 measurements = ['R', 'R']
 motions = [[0,0], [0,1]]
-sensor_right = 0.8
-p_move = 0.5
+sensor_right = 1.0
+p_move = 1.0
 p = localize(colors,measurements,motions,sensor_right,p_move)
 # p = localize(colors,measurements,motions,sensor_right = 0.7, p_move = 0.8)
 show(p)  # displays your answer
@@ -148,6 +167,6 @@ show(p)  # displays your answer
 #      [0, 0, 0]]
 # motions = [[0,1], [0,1]]
 # show(mover_right(p,motions,p_move))
-# #
-# #
-# #
+
+# problem in only p_move
+# row 1 should have the same numbers. Why is it not so when 0 < p_move < 1.0
