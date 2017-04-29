@@ -43,41 +43,84 @@
 #  [1,0] - down
 #  [-1,0] - up
 
-def localize(colors,measurements,motions,sensor_right,p_move):
+def localize(colors, measurements, motions, sensor_right, p_move):
     # initializes p to a uniform distribution over a grid of the same dimensions as colors
     pinit = 1.0 / float(len(colors)) / float(len(colors[0]))
     p = [[pinit for row in range(len(colors[0]))] for col in range(len(colors))]
-    
+
     # >>> Insert your code here <<<
-
     # sense
-    summer = 0
     for i in range(len(motions)):
-        for x in range(len(colors)):
-            for y in range(len(colors[0])):
-                hit = (colors[x][y] == measurements[i])
-                p[x][y] = p[x][y] * (sensor_right * hit + (1-hit)*(1-sensor_right) )
-            summer+= sum(p[x])
-        for x in range(len(colors)):
-            for y in range(len(colors[0])):
-                p[x][y]/=summer
-
-    # move
-
-    
 
 
+        # move right
+        U = motions[i][1]
+        p = mover_right(p, U, p_move)
+        # show(p)
 
+        # move down
+        U = motions[i][0]
+        p = mover_down( p, U, p_move)
+        # show(p)
 
-    
+        U = measurements[i]
+        p = sense(p, U, sensor_right, colors)
+        # show(p)
+
     return p
 
+def sense(p, U, sensor_right, colors):
+
+    summer = 0
+    for x in range(len(colors)):
+        for y in range(len(colors[0])):
+            hit = (colors[x][y] == U)
+            p[x][y] = p[x][y] * (sensor_right * hit + (1 - hit) * (1 - sensor_right))
+        summer += sum(p[x])
+    for x in range(len(colors)):
+        for y in range(len(colors[0])):
+            p[x][y] /= summer
+
+    return p
+
+def mover_down(p1, U, p_move):
+    p2 = [[0 for row in range(len(p1[0]))] for col in range(len(p1))]
+    for y in range(len(p1[0])):
+        q = [p1[k][y] for k in range(len(p1[0]))]
+        q = move(q, U, p_move)
+        #     array in the down direction
+        for k in range(len(p1)):
+            p2[k][y] = q[k]
+    return p2
+
+def mover_right(p,U,p_move):
+    p1 = [[0 for row in range(len(p[0]))] for col in range(len(p))]
+    for x in range(len(p)):
+        q = [p[x][y] for y in range(len(p[x]))]
+        q = move(q, U, p_move)
+
+        for k in range(len(p1)):
+            p1[x][k] = q[k]
+
+    return p1
+
+def move(arr, U, p_move):
+    q= []
+
+    for i in range(len(arr)):
+        s = p_move * arr[(i - U) % len(arr)]
+        s += (1 - p_move) * arr[(i - U + 1) % len(arr)]
+        q.append(s)
+
+    return q
+
 def show(p):
-    rows = ['[' + ','.join(map(lambda x: '{0:.5f}'.format(x),r)) + ']' for r in p]
-    print '[' + ',\n '.join(rows) + ']'
-    
+    rows = ['[' + ','.join(map(lambda x: '{0:.5f}'.format(x), r)) + ']' for r in p]
+    print('[' + ',\n '.join(rows) + ']')
+
+
 #############################################################
-# For the following test case, your output should be 
+# For the following test case, your output should be
 # [[0.01105, 0.02464, 0.06799, 0.04472, 0.02465],
 #  [0.00715, 0.01017, 0.08696, 0.07988, 0.00935],
 #  [0.00739, 0.00894, 0.11272, 0.35350, 0.04065],
@@ -93,10 +136,18 @@ def show(p):
 colors = [['G', 'G', 'G'],
           ['G', 'R', 'R'],
           ['G', 'G', 'G']]
-measurements = ['R']
-motions = [[0,0]]
+measurements = ['R', 'R']
+motions = [[0,0], [0,1]]
 sensor_right = 0.8
-p_move = 1.0
+p_move = 0.5
 p = localize(colors,measurements,motions,sensor_right,p_move)
 # p = localize(colors,measurements,motions,sensor_right = 0.7, p_move = 0.8)
-show(p) # displays your answer
+show(p)  # displays your answer
+# p = [[0,0,0],
+#      [0, 1,0,],
+#      [0, 0, 0]]
+# motions = [[0,1], [0,1]]
+# show(mover_right(p,motions,p_move))
+# #
+# #
+# #
